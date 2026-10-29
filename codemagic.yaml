@@ -25,7 +25,7 @@ workflows:
       - name: Import signing certificate
         script: |
           set -e
-          echo "$WDA_CERT_P12" | openssl base64 -d -out /tmp/wda_cert.p12
+          echo -n "$WDA_CS1$WDA_CS2$WDA_CS3$WDA_CS4" | openssl base64 -d -out /tmp/wda_cert.p12
           test -s /tmp/wda_cert.p12
           ls -l /tmp/wda_cert.p12
           security create-keychain -p "" /tmp/build.keychain-db || true
@@ -38,10 +38,10 @@ workflows:
       - name: Install provisioning profile
         script: |
           set -e
-          echo "chunk lengths: $(echo -n "$WDA_PROFILE2_P1" | wc -c) $(echo -n "$WDA_PROFILE2_P2" | wc -c) $(echo -n "$WDA_PROFILE2_P3" | wc -c) $(echo -n "$WDA_PROFILE2_P4" | wc -c)"
-          echo "cert length: $(echo -n "$WDA_CERT_P12" | wc -c)"
+          echo "profile length: $(echo -n "$WDA_PS1$WDA_PS2$WDA_PS3$WDA_PS4$WDA_PS5$WDA_PS6$WDA_PS7$WDA_PS8$WDA_PS9$WDA_PS10$WDA_PS11" | wc -c)"
+          echo "cert length: $(echo -n "$WDA_CS1$WDA_CS2$WDA_CS3$WDA_CS4" | wc -c)"
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          echo -n "$WDA_PROFILE2_P1$WDA_PROFILE2_P2$WDA_PROFILE2_P3$WDA_PROFILE2_P4" | openssl base64 -d -out "$HOME/Library/MobileDevice/Provisioning Profiles/WDA_Runner2.mobileprovision"
+          echo -n "$WDA_PS1$WDA_PS2$WDA_PS3$WDA_PS4$WDA_PS5$WDA_PS6$WDA_PS7$WDA_PS8$WDA_PS9$WDA_PS10$WDA_PS11" | openssl base64 -d -out "$HOME/Library/MobileDevice/Provisioning Profiles/WDA_Runner2.mobileprovision"
           test -s "$HOME/Library/MobileDevice/Provisioning Profiles/WDA_Runner2.mobileprovision"
           ls -l "$HOME/Library/MobileDevice/Provisioning Profiles/"
           security cms -D -i "$HOME/Library/MobileDevice/Provisioning Profiles/WDA_Runner2.mobileprovision" | grep -c "<key>UUID</key>"
