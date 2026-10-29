@@ -2331,7 +2331,7 @@
 					"$(inherited)",
 					"-all_load",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lifediy.WebDriverAgentRunner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USES_XCTRUNNER = YES;
 			};
@@ -2353,7 +2353,7 @@
 					"$(inherited)",
 					"-all_load",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lifediy.WebDriverAgentRunner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USES_XCTRUNNER = YES;
 			};

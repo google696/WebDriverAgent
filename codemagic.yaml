@@ -28,9 +28,10 @@ workflows:
             -scheme WebDriverAgentRunner \
             -destination 'generic/platform=iOS' \
             -derivedDataPath derived_data \
-            -allowProvisioningUpdates \
             DEVELOPMENT_TEAM=F9VLMGG7XN \
-            CODE_SIGN_STYLE=Automatic \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Development" \
+            PROVISIONING_PROFILE_SPECIFIER="WDA Runner" \
             build-for-testing
       - name: Package IPA
         script: |
