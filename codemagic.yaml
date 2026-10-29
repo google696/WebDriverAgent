@@ -1,0 +1,43 @@
+workflows:
+  wda-device:
+    name: WDA device build
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      xcode: latest
+      cocoapods: default
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: master
+          include: true
+    scripts:
+      - name: Install Carthage
+        script: |
+          if ! command -v carthage >/dev/null 2>&1; then brew install carthage; fi
+      - name: Bootstrap dependencies
+        script: |
+          ./Scripts/bootstrap.sh
+      - name: Build WebDriverAgentRunner for device
+        script: |
+          xcodebuild -project WebDriverAgent.xcodeproj \
+            -scheme WebDriverAgentRunner \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath derived_data \
+            -allowProvisioningUpdates \
+            DEVELOPMENT_TEAM=F9VLMGG7XN \
+            CODE_SIGN_STYLE=Automatic \
+            build-for-testing
+      - name: Package IPA
+        script: |
+          set -e
+          APP=$(find derived_data/Build/Products/Debug-iphoneos -maxdepth 1 -name "*.app" | head -1)
+          echo "APP=$APP"
+          test -n "$APP"
+          rm -rf Payload WebDriverAgentRunner.ipa
+          mkdir -p Payload
+          cp -r "$APP" Payload/
+          zip -r WebDriverAgentRunner.ipa Payload
+    artifacts:
+      - WebDriverAgentRunner.ipa
