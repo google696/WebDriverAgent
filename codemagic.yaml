@@ -22,28 +22,31 @@ workflows:
         script: |
           npm config set legacy-peer-deps true
           ./Scripts/bootstrap.sh
+      - name: Fetch signing files
+        script: |
+          set -e
+          TOKEN="${WDA_REPO_TOKEN:-$GITHUB_ACCESS_TOKEN}"
+          test -n "$TOKEN"
+          AUTH=$(printf 'x-access-token:%s' "$TOKEN" | base64 | tr -d '\n')
+          git -c http.extraHeader="Authorization: Basic $AUTH" clone --depth 1 https://github.com/google696/wda-signing-private.git /tmp/signing
+          test -s /tmp/signing/wda_cert.p12
+          test -s /tmp/signing/WDA_Runner2.mobileprovision
+          echo "signing files fetched"
       - name: Import signing certificate
         script: |
           set -e
-          echo -n "$WDA_CS1$WDA_CS2$WDA_CS3$WDA_CS4" | openssl base64 -d -out /tmp/wda_cert.p12
-          test -s /tmp/wda_cert.p12
-          ls -l /tmp/wda_cert.p12
           security create-keychain -p "" /tmp/build.keychain-db || true
-          security import /tmp/wda_cert.p12 -k /tmp/build.keychain-db -P "" -T /usr/bin/codesign -T /usr/bin/security
+          security import /tmp/signing/wda_cert.p12 -k /tmp/build.keychain-db -P "" -T /usr/bin/codesign -T /usr/bin/security
           security list-keychains -s /tmp/build.keychain-db ~/Library/Keychains/login.keychain-db
           security unlock-keychain -p "" /tmp/build.keychain-db || true
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" /tmp/build.keychain-db || true
           security find-identity -v -p codesigning /tmp/build.keychain-db | grep -q "iPhone Developer"
-          rm -f /tmp/wda_cert.p12
       - name: Install provisioning profile
         script: |
           set -e
-          echo "profile length: $(echo -n "$WDA_PS1$WDA_PS2$WDA_PS3$WDA_PS4$WDA_PS5$WDA_PS6$WDA_PS7$WDA_PS8$WDA_PS9$WDA_PS10$WDA_PS11" | wc -c)"
-          echo "cert length: $(echo -n "$WDA_CS1$WDA_CS2$WDA_CS3$WDA_CS4" | wc -c)"
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          echo -n "$WDA_PS1$WDA_PS2$WDA_PS3$WDA_PS4$WDA_PS5$WDA_PS6$WDA_PS7$WDA_PS8$WDA_PS9$WDA_PS10$WDA_PS11" | openssl base64 -d -out "$HOME/Library/MobileDevice/Provisioning Profiles/WDA_Runner2.mobileprovision"
+          cp /tmp/signing/WDA_Runner2.mobileprovision "$HOME/Library/MobileDevice/Provisioning Profiles/WDA_Runner2.mobileprovision"
           test -s "$HOME/Library/MobileDevice/Provisioning Profiles/WDA_Runner2.mobileprovision"
-          ls -l "$HOME/Library/MobileDevice/Provisioning Profiles/"
           security cms -D -i "$HOME/Library/MobileDevice/Provisioning Profiles/WDA_Runner2.mobileprovision" | grep -c "<key>UUID</key>"
       - name: Build WebDriverAgentRunner for device
         script: |
