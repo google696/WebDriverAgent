@@ -20,6 +20,7 @@ workflows:
           if ! command -v carthage >/dev/null 2>&1; then brew install carthage; fi
       - name: Bootstrap dependencies
         script: |
+          npm config set legacy-peer-deps true
           ./Scripts/bootstrap.sh
       - name: Build WebDriverAgentRunner for device
         script: |
