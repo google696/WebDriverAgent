@@ -6,6 +6,8 @@ workflows:
     environment:
       xcode: latest
       cocoapods: default
+      groups:
+        - wda-secrets
     triggering:
       events:
         - push
